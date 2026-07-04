@@ -1,0 +1,17 @@
+main{
+    display:flex;
+    gap:20px;
+}
+
+#map{
+    width:70%;
+    height:600px;
+}
+
+#painel{
+    width:30%;
+    background:#1b1b1b;
+    color:white;
+    padding:20px;
+    border-radius:10px;
+}
