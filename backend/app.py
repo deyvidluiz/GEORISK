@@ -2,10 +2,34 @@ from flask import Flask
 from flask_cors import CORS
 import json
 import os
+import csv
+from flask import request  # adicione "request" no import do flask
 
 app = Flask(__name__)
 
 CORS(app)
+
+
+@app.route("/api/conflicts")
+def get_conflicts():
+    ano = request.args.get("ano", "2025")  #se não declarar nenhum ano, 2025 vai ser adicionado automatico
+
+    caminho = os.path.join(os.path.dirname(__file__), "data", "conflicts.csv")
+    conflitos = []
+
+    with open(caminho, "r", encoding="utf-8") as f:
+        leitor = csv.DictReader(f)
+        for linha in leitor:
+            if linha["Year"] == ano and linha["Code"]:
+                teve_conflito = linha["Country where conflict took place - Conflict type: all"]
+                if teve_conflito == "1":
+                    conflitos.append({
+                        "code3": linha["Code"],
+                        "type": "Conflito armado",
+                        "summary": f"{linha['Entity']} registrou conflito armado ativo em {ano}, segundo dados do UCDP."
+                    })
+
+    return conflitos
 
 @app.route("/api/borders")#para criar as rotas de fronteira dos paises
 def get_borders():
@@ -21,6 +45,7 @@ def health():
         "status":"ok",
 
     }
+
 
 @app.route("/api/countries")
 def get_countries():
