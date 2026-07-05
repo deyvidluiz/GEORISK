@@ -23,12 +23,19 @@
         <div id="map"></div>
 
         <div id="painel">
+            <div id="alerta-conflito" style="display:none; background:#e74c3c22; border-left:3px solid #e74c3c; padding:10px; margin-top:10px; border-radius:4px;">
+                <strong id="alerta-tipo"></strong>
+                <p id="alerta-resumo"></p>
+            </div>
             <h2 id="nome-pais">Selecione um país</h2>
             <p><strong>Capital:</strong> <span id="capital"></span></p>
             <p><strong>Região:</strong> <span id="regiao"></span></p>
             <p><strong>População:</strong> <span id="populacao"></span></p>
             <p><strong>Código:</strong> <span id="codigo"></span></p>
+            <label for="seletor-ano">Ano:</label>
+            <select id="seletor-ano">
         </div>
+        </select>
     </main>
 
     <script src="../node_modules/leaflet/dist/leaflet.js"></script>

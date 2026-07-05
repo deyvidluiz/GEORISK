@@ -1,47 +1,67 @@
-//const map = L.map("map").setView([20, 0], 2);
+let countriesByCode = {};
+let conflitosByCode = {};
+let geoLayer = null;
 
-//L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  //  maxZoom: 19,
-    //attribution: "&copy; OpenStreetMap contributors"
-//}).addTo(map);
+function estiloPais(feature) {
+  const emAlerta = conflitosByCode[feature.id] !== undefined;
+  return {
+    color: emAlerta ? "#e74c3c" : "#3388ff",
+    weight: emAlerta ? 2 : 1,
+    fillColor: emAlerta ? "#e74c3c" : "#3388ff",
+    fillOpacity: emAlerta ? 0.4 : 0.15
+  };
+}
 
-fetch("http://127.0.0.1:5000/api/health") //verifica se o flask esta ativo
+function carregarConflitos(ano) {
+  fetch(`http://127.0.0.1:5000/api/conflicts?ano=${ano}`)
     .then(response => response.json())
-    .then(data => {
-        console.log("Resposta do backend:");
-        console.log(data);
-    })
-    .catch(error => {
-        console.error("Erro:", error);
-    });
+    .then(conflitos => {
+      conflitosByCode = {};
+      conflitos.forEach(c => { conflitosByCode[c.code3] = c; });
 
-// 1. Busca os dados de cada país
+      // Se o mapa já foi desenhado, só re-estiliza (sem recriar tudo)
+      if (geoLayer) {
+        geoLayer.eachLayer(layer => {
+          layer.setStyle(estiloPais(layer.feature));
+        });
+      }
+    })
+    .catch(error => console.error("Erro ao carregar conflitos:", error));
+}
+
+// Preenche o seletor de anos (1989 até 2025)
+const seletor = document.getElementById("seletor-ano");
+for (let ano = 2025; ano >= 1989; ano--) {
+  const opt = document.createElement("option");
+  opt.value = ano;
+  opt.textContent = ano;
+  seletor.appendChild(opt);
+}
+seletor.addEventListener("change", () => carregarConflitos(seletor.value));
+
+// ---- Fluxo principal ----
+
 fetch("http://127.0.0.1:5000/api/countries")
   .then(response => response.json())
   .then(countries => {
 
-    // Cria um dicionário pra encontrar mais rápido um país pelo code3
-    const countriesByCode = {};
     countries.forEach(country => {
       if (country.code3) countriesByCode[country.code3] = country;
     });
 
-    // 2. Busca as fronteiras e mostra no mapa
     fetch("http://127.0.0.1:5000/api/borders")
       .then(response => response.json())
       .then(geojsonData => {
 
-        L.geoJSON(geojsonData, {
-          style: {
-            color: "#3388ff",
-            weight: 1,
-            fillOpacity: 0.15
-          },
+        geoLayer = L.geoJSON(geojsonData, {
+          style: estiloPais,
           onEachFeature: function (feature, layer) {
-            const code3 = feature.id; // o arquivo usa o códe3 como id do pais
-            const country = countriesByCode[code3];
+            const code3 = feature.id;
 
             layer.on("click", () => {
+              const country = countriesByCode[code3];
+              const conflito = conflitosByCode[code3]; // sempre busca o valor atual
+
               if (!country) {
                 document.getElementById("nome-pais").textContent = feature.properties?.name || "País não encontrado na base";
                 return;
@@ -52,13 +72,24 @@ fetch("http://127.0.0.1:5000/api/countries")
               document.getElementById("populacao").textContent =
                 country.population ? country.population.toLocaleString("pt-BR") : "Dado não disponível";
               document.getElementById("codigo").textContent = country.code || "—";
+
+              const banner = document.getElementById("alerta-conflito");
+              if (conflito) {
+                banner.style.display = "block";
+                document.getElementById("alerta-tipo").textContent = conflito.type;
+                document.getElementById("alerta-resumo").textContent = conflito.summary;
+              } else {
+                banner.style.display = "none";
+              }
             });
 
-            // destaca o pais ao passar o mouse
-            layer.on("mouseover", () => layer.setStyle({ fillOpacity: 0.4 }));
-            layer.on("mouseout", () => layer.setStyle({ fillOpacity: 0.15 }));
+            layer.on("mouseover", () => layer.setStyle({ fillOpacity: 0.5 }));
+            layer.on("mouseout", () => layer.setStyle(estiloPais(feature)));
           }
         }).addTo(map);
+
+        // Carrega os conflitos do ano padrão (2025) assim que o mapa estiver pronto
+        carregarConflitos(2025);
 
       })
       .catch(error => console.error("Erro ao carregar contornos:", error));
