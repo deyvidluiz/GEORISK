@@ -4,25 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoRisk</title>
+
     <link rel="stylesheet" href="../node_modules/leaflet/dist/leaflet.css">
     <link rel="stylesheet" href="style.css">
+
+    <style>
+        #map {
+            width: 70%;
+            height: 600px;
+            margin: 20px;
+            border-radius: 10px;
+            border: 2px solid #ccc;
+        }
+    </style>
 </head>
 <body>
-    <h1>GeoRisk</h1>
-
     <main>
         <div id="map"></div>
 
-        <aside id="painel">
+        <div id="painel">
             <h2 id="nome-pais">Selecione um país</h2>
-            <p><strong>Capital:</strong> <span id="capital">-</span></p>
-            <p><strong>Região:</strong> <span id="regiao">-</span></p>
-            <p><strong>População:</strong> <span id="populacao">-</span></p>
-            <p><strong>Código:</strong> <span id="codigo">-</span></p>
-        </aside>
+            <p><strong>Capital:</strong> <span id="capital"></span></p>
+            <p><strong>Região:</strong> <span id="regiao"></span></p>
+            <p><strong>População:</strong> <span id="populacao"></span></p>
+            <p><strong>Código:</strong> <span id="codigo"></span></p>
+        </div>
     </main>
 
     <script src="../node_modules/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map', {
+            maxBounds: [[-90, -180], [90, 180]],  // deixa o mapa somente com uma volta
+            maxBoundsViscosity: 1.0,               // não deixa o usuario arraastar para fora do mapa
+            worldCopyJump: false
+        });
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            noWrap: true,   // não deixa o mapa repetir horizontalmente
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        map.fitWorld();
+        map.setZoom(map.getZoom() + 2);
+    </script>
+
     <script src="script.js"></script>
 </body>
 </html>
