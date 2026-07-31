@@ -34,3 +34,17 @@ Thumbs.db
 dist/
 build/
 .cache/
+
+# Ambientes virtuais
+venv/
+.venv/
+**/venv/
+**/.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Variáveis secretas
+.env
+**/.env
