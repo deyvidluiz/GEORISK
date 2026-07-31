@@ -3,14 +3,19 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
     <title>GeoRisk</title>
 
-    <!-- Leaflet (CDN) -->
-    <link rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIINfQ3ynxNVZBMFqN+VMZB0q1jVmL0C5A="
-        crossorigin="" />
+    <!-- Leaflet CSS por CDN -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"
+    >
 
     <!-- CSS do projeto -->
     <link rel="stylesheet" href="style.css">
@@ -20,8 +25,8 @@
             width: 70%;
             height: 600px;
             margin: 20px;
-            border-radius: 10px;
             border: 2px solid #ccc;
+            border-radius: 10px;
         }
     </style>
 </head>
@@ -34,16 +39,25 @@
 
         <div id="painel">
 
-            <div id="alerta-conflito"
-                style="display:none; background:#e74c3c22; border-left:3px solid #e74c3c; padding:10px; margin-top:10px; border-radius:4px;">
-
+            <div
+                id="alerta-conflito"
+                style="
+                    display: none;
+                    background: #e74c3c22;
+                    border-left: 3px solid #e74c3c;
+                    padding: 10px;
+                    margin-top: 10px;
+                    border-radius: 4px;
+                "
+            >
                 <strong id="alerta-tipo"></strong>
 
                 <p id="alerta-resumo"></p>
-
             </div>
 
-            <h2 id="nome-pais">Selecione um país</h2>
+            <h2 id="nome-pais">
+                Selecione um país
+            </h2>
 
             <p>
                 <strong>Capital:</strong>
@@ -65,7 +79,9 @@
                 <span id="codigo"></span>
             </p>
 
-            <label for="seletor-ano">Ano:</label>
+            <label for="seletor-ano">
+                Ano:
+            </label>
 
             <select id="seletor-ano"></select>
 
@@ -81,7 +97,8 @@
                         id="chat-input"
                         type="text"
                         placeholder="Pergunte sobre o país selecionado"
-                        autocomplete="off">
+                        autocomplete="off"
+                    >
 
                     <button type="submit">
                         Enviar
@@ -97,49 +114,33 @@
 
     </main>
 
-    <!-- Leaflet (CDN) -->
+    <!-- Leaflet JavaScript por CDN -->
     <script
-        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-        crossorigin="">
-    </script>
+        src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"
+    ></script>
 
     <script>
-
         const map = L.map("map", {
-
             maxBounds: [
                 [-90, -180],
                 [90, 180]
             ],
-
             maxBoundsViscosity: 1.0,
-
             worldCopyJump: false
-
         });
 
         L.tileLayer(
-
             "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-
             {
-
                 maxZoom: 19,
-
                 noWrap: true,
-
                 attribution:
                     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-
             }
-
         ).addTo(map);
 
         map.fitWorld();
-
         map.setZoom(map.getZoom() + 2);
-
     </script>
 
     <!-- Script do projeto -->
