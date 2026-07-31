@@ -4,7 +4,7 @@ let geoLayer = null;
 let paisSelecionado = null;
 let historicoChat = [];
 
-const API_URL = "https://georisk-zvj9.onrender.com";
+const API_URL = "";
 
 
 function estiloPais(feature) {
@@ -44,8 +44,37 @@ async function carregarConflitos(ano) {
         layer.setStyle(estiloPais(layer.feature));
       });
     }
+
+    atualizarPainelConflito();
   } catch (error) {
     console.error("Erro ao carregar conflitos:", error);
+  }
+}
+
+
+function atualizarPainelConflito() {
+  const banner = document.getElementById("alerta-conflito");
+
+  if (!paisSelecionado) {
+    banner.style.display = "none";
+    return;
+  }
+
+  const conflito = conflitosByCode[paisSelecionado.code3];
+
+  if (conflito) {
+    banner.style.display = "block";
+
+    document.getElementById("alerta-tipo").textContent =
+      conflito.type;
+
+    document.getElementById("alerta-resumo").textContent =
+      conflito.summary;
+  } else {
+    banner.style.display = "none";
+
+    document.getElementById("alerta-tipo").textContent = "";
+    document.getElementById("alerta-resumo").textContent = "";
   }
 }
 
@@ -62,8 +91,8 @@ for (let ano = 2025; ano >= 1989; ano--) {
   seletor.appendChild(option);
 }
 
-seletor.addEventListener("change", () => {
-  carregarConflitos(seletor.value);
+seletor.addEventListener("change", async () => {
+  await carregarConflitos(seletor.value);
 });
 
 
@@ -81,6 +110,8 @@ async function carregarMapa() {
     }
 
     const countries = await countriesResponse.json();
+
+    countriesByCode = {};
 
     countries.forEach(country => {
       if (country.code3) {
@@ -108,7 +139,6 @@ async function carregarMapa() {
 
         layer.on("click", () => {
           const country = countriesByCode[code3];
-          const conflito = conflitosByCode[code3];
 
           if (!country) {
             document.getElementById("nome-pais").textContent =
@@ -142,20 +172,7 @@ async function carregarMapa() {
           document.getElementById("codigo").textContent =
             country.code || "—";
 
-          const banner =
-            document.getElementById("alerta-conflito");
-
-          if (conflito) {
-            banner.style.display = "block";
-
-            document.getElementById("alerta-tipo").textContent =
-              conflito.type;
-
-            document.getElementById("alerta-resumo").textContent =
-              conflito.summary;
-          } else {
-            banner.style.display = "none";
-          }
+          atualizarPainelConflito();
         });
 
         layer.on("mouseover", () => {
@@ -170,7 +187,7 @@ async function carregarMapa() {
       }
     }).addTo(map);
 
-    carregarConflitos(2025);
+    await carregarConflitos(seletor.value);
   } catch (error) {
     console.error("Erro ao carregar mapa:", error);
 
@@ -178,7 +195,7 @@ async function carregarMapa() {
 
     if (erroChat) {
       erroChat.textContent =
-        "Não foi possível conectar ao servidor.";
+        "Não foi possível carregar os dados do mapa.";
     }
   }
 }
@@ -271,7 +288,15 @@ document
         }
       );
 
-      const data = await response.json();
+      let data;
+
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error(
+          `O servidor retornou uma resposta inválida. HTTP ${response.status}`
+        );
+      }
 
       if (!response.ok) {
         throw new Error(
