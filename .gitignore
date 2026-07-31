@@ -48,3 +48,8 @@ __pycache__/
 # Variáveis secretas
 .env
 **/.env
+backendi/
+
+backend/.env
+backend/venv/
+backend/__pycache__/
