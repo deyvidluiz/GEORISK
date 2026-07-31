@@ -11,22 +11,198 @@
 
     <title>GeoRisk</title>
 
-    <!-- Leaflet CSS por CDN -->
+    <!-- CSS do Leaflet -->
     <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"
     >
 
-    <!-- CSS do projeto -->
+    <!-- CSS externo do projeto -->
     <link rel="stylesheet" href="style.css">
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            overflow-x: hidden;
+            background: #f4f6f8;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 420px;
+            gap: 20px;
+            width: 100%;
+            min-height: 100vh;
+            padding: 20px;
+            align-items: stretch;
+        }
+
         #map {
-            width: 70%;
-            height: 600px;
-            margin: 20px;
+            width: 100%;
+            height: calc(100vh - 40px);
+            min-height: 600px;
+            margin: 0;
             border: 2px solid #ccc;
             border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            background: #dfe8ee;
+        }
+
+        #painel {
+            width: 100%;
+            height: calc(100vh - 40px);
+            min-height: 600px;
+            padding: 20px;
+            overflow-y: auto;
+            background: #1c1c1c;
+            color: #fff;
+            border-radius: 10px;
+        }
+
+        #painel h2 {
+            margin-top: 0;
+        }
+
+        #painel p {
+            margin: 12px 0;
+        }
+
+        #seletor-ano {
+            margin-left: 5px;
+        }
+
+        #alerta-conflito {
+            display: none;
+            background: #e74c3c22;
+            border-left: 3px solid #e74c3c;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 16px;
+            border-radius: 4px;
+        }
+
+        #alerta-conflito p {
+            margin-bottom: 0;
+        }
+
+        #chat-ia {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #444;
+        }
+
+        #chat-mensagens {
+            width: 100%;
+            min-height: 220px;
+            max-height: 320px;
+            padding: 10px;
+            overflow-y: auto;
+            background: #111;
+            border: 1px solid #444;
+            border-radius: 6px;
+        }
+
+        .chat-msg {
+            margin-bottom: 10px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .chat-msg.sistema {
+            background: #2c3e50;
+        }
+
+        .chat-msg.user {
+            background: #2457a7;
+            margin-left: 20px;
+        }
+
+        .chat-msg.assistant {
+            background: #2d2d2d;
+            margin-right: 20px;
+        }
+
+        #chat-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        #chat-input {
+            flex: 1;
+            min-width: 0;
+            padding: 10px;
+            color: #fff;
+            background: #111;
+            border: 1px solid #444;
+            border-radius: 5px;
+        }
+
+        #chat-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        #chat-form button {
+            padding: 10px 16px;
+            color: #fff;
+            background: #2563eb;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #chat-form button:hover {
+            background: #1d4ed8;
+        }
+
+        #chat-form button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        #chat-erro {
+            min-height: 20px;
+            margin-top: 8px;
+            color: #ff6b6b;
+            font-size: 14px;
+        }
+
+        .leaflet-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        @media (max-width: 900px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+
+            #map {
+                height: 60vh;
+                min-height: 450px;
+            }
+
+            #painel {
+                height: auto;
+                min-height: 500px;
+            }
         }
     </style>
 </head>
@@ -37,21 +213,10 @@
 
         <div id="map"></div>
 
-        <div id="painel">
+        <aside id="painel">
 
-            <div
-                id="alerta-conflito"
-                style="
-                    display: none;
-                    background: #e74c3c22;
-                    border-left: 3px solid #e74c3c;
-                    padding: 10px;
-                    margin-top: 10px;
-                    border-radius: 4px;
-                "
-            >
+            <div id="alerta-conflito">
                 <strong id="alerta-tipo"></strong>
-
                 <p id="alerta-resumo"></p>
             </div>
 
@@ -80,7 +245,7 @@
             </p>
 
             <label for="seletor-ano">
-                Ano:
+                <strong>Ano:</strong>
             </label>
 
             <select id="seletor-ano"></select>
@@ -110,11 +275,11 @@
 
             </section>
 
-        </div>
+        </aside>
 
     </main>
 
-    <!-- Leaflet JavaScript por CDN -->
+    <!-- JavaScript do Leaflet -->
     <script
         src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"
     ></script>
@@ -140,10 +305,20 @@
         ).addTo(map);
 
         map.fitWorld();
-        map.setZoom(map.getZoom() + 2);
+
+        window.addEventListener("load", () => {
+            setTimeout(() => {
+                map.invalidateSize();
+                map.fitWorld();
+            }, 300);
+        });
+
+        window.addEventListener("resize", () => {
+            map.invalidateSize();
+        });
     </script>
 
-    <!-- Script do projeto -->
+    <!-- Script principal do projeto -->
     <script src="script.js"></script>
 
 </body>
