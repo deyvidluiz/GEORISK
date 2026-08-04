@@ -1,67 +1,147 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoRisk</title>
 
-    <link rel="stylesheet" href="../node_modules/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <header class="topbar">
-        <div>
-            <span class="eyebrow">Monitoramento internacional</span>
-            <h1>GeoRisk</h1>
-        </div>
-        <span class="status-dot">Mapa de conflitos</span>
-    </header>
-
-    <main>
-        <div id="map"></div>
-
-        <div id="painel">
-            <div id="alerta-conflito">
-                <strong id="alerta-tipo"></strong>
-                <p id="alerta-resumo"></p>
+    <div class="app-shell">
+        <header class="topbar">
+            <div class="brand">
+                <span class="eyebrow">Monitoramento internacional</span>
+                <h1>GeoRisk</h1>
+                <p>Explore conflitos armados por ano, pais e contexto geopolitico.</p>
             </div>
 
-            <h2 id="nome-pais">Selecione um país</h2>
-            <p><strong>Capital:</strong> <span id="capital"></span></p>
-            <p><strong>Região:</strong> <span id="regiao"></span></p>
-            <p><strong>População:</strong> <span id="populacao"></span></p>
-            <p><strong>Código:</strong> <span id="codigo"></span></p>
-
-            <label for="seletor-ano">Ano:</label>
-            <select id="seletor-ano"></select>
-
-            <div class="ai-bloco">
-                <h3>Converse com a IA sobre este país</h3>
-                <div id="chat-mensagens" style="height:180px; overflow-y:auto; background:#111; padding:8px; border-radius:6px; margin-bottom:8px; font-size:14px;"></div>
-                <input type="text" id="chat-input" placeholder="Pergunte algo sobre este país..." style="width:70%;">
-                <button id="chat-enviar">Enviar</button>
+            <div class="top-actions" aria-label="Resumo do periodo">
+                <div class="metric">
+                    <span id="total-conflitos">0</span>
+                    <small>paises em alerta</small>
+                </div>
+                <div class="metric">
+                    <span id="ano-atual">2025</span>
+                    <small>ano analisado</small>
+                </div>
             </div>
-        </div>
-    </main>
+        </header>
 
-    <script src="../node_modules/leaflet/dist/leaflet.js"></script>
+        <main class="workspace">
+            <section class="map-area" aria-label="Mapa interativo de conflitos">
+                <div class="map-toolbar">
+                    <label class="search-box" for="busca-pais">
+                        <span>Buscar</span>
+                        <input id="busca-pais" type="search" placeholder="Digite um pais ou codigo" autocomplete="off">
+                    </label>
+
+                    <label class="year-control" for="seletor-ano">
+                        <span>Ano</span>
+                        <select id="seletor-ano"></select>
+                    </label>
+                </div>
+
+                <div id="map"></div>
+
+                <div class="legend" aria-label="Legenda do mapa">
+                    <span><i class="legend-dot danger"></i>Conflito armado</span>
+                    <span><i class="legend-dot neutral"></i>Sem alerta no ano</span>
+                </div>
+            </section>
+
+            <aside id="painel" aria-label="Detalhes do pais selecionado">
+                <div class="panel-header">
+                    <span class="panel-kicker">Analise do pais</span>
+                    <h2 id="nome-pais">Selecione um pais</h2>
+                    <p id="painel-subtitulo">Clique no mapa ou use a busca para abrir os dados.</p>
+                </div>
+
+                <div id="alerta-conflito" role="status">
+                    <strong id="alerta-tipo"></strong>
+                    <p id="alerta-resumo"></p>
+                </div>
+
+                <dl class="country-facts">
+                    <div>
+                        <dt>Capital</dt>
+                        <dd id="capital">-</dd>
+                    </div>
+                    <div>
+                        <dt>Regiao</dt>
+                        <dd id="regiao">-</dd>
+                    </div>
+                    <div>
+                        <dt>Populacao</dt>
+                        <dd id="populacao">-</dd>
+                    </div>
+                    <div>
+                        <dt>Codigo</dt>
+                        <dd id="codigo">-</dd>
+                    </div>
+                </dl>
+
+                <section id="chat-ia">
+                    <div class="chat-heading">
+                        <div>
+                            <span class="panel-kicker">IA geopolitica</span>
+                            <h3>Converse sobre o pais</h3>
+                        </div>
+                    </div>
+
+                    <div class="prompt-row" aria-label="Perguntas rapidas">
+                        <button class="prompt-btn" type="button" data-prompt="Resuma o contexto de seguranca deste pais.">Contexto</button>
+                        <button class="prompt-btn" type="button" data-prompt="Quais fatores historicos ajudam a explicar os conflitos?">Historico</button>
+                        <button class="prompt-btn" type="button" data-prompt="Quais indicadores devo acompanhar neste pais?">Indicadores</button>
+                    </div>
+
+                    <div id="chat-mensagens"></div>
+
+                    <form id="chat-form">
+                        <input id="chat-input" type="text" placeholder="Pergunte sobre o pais selecionado" autocomplete="off">
+                        <button id="chat-enviar" type="submit">Enviar</button>
+                    </form>
+
+                    <p id="chat-erro"></p>
+                </section>
+            </aside>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        var map = L.map('map', {
+        const map = L.map("map", {
             maxBounds: [[-90, -180], [90, 180]],
             maxBoundsViscosity: 1.0,
-            worldCopyJump: false
+            worldCopyJump: false,
+            zoomControl: false
         });
 
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.control.zoom({ position: "bottomleft" }).addTo(map);
+
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
             maxZoom: 19,
             noWrap: true,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
         map.fitWorld();
-        map.setZoom(map.getZoom() + 2);
-    </script>
 
+        window.addEventListener("load", () => {
+            setTimeout(() => {
+                map.invalidateSize();
+                map.fitWorld();
+            }, 250);
+        });
+
+        window.addEventListener("resize", () => {
+            map.invalidateSize();
+        });
+    </script>
     <script src="script.js"></script>
 </body>
+
 </html>
