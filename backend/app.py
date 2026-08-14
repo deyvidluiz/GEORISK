@@ -376,6 +376,20 @@ def get_countries():
         population = country.get("population")
         latlng = country.get("latlng", [])
 
+        # "currencies" no countries.json vem assim:
+        # {"BRL": {"name": "Brazilian real", "symbol": "R$"}}
+        # Pegamos só a primeira moeda do dicionário.
+        currencies_data = country.get("currencies") or {}
+        primeira_moeda = next(iter(currencies_data.values()), None)
+        moeda = (
+            {
+                "name": primeira_moeda.get("name"),
+                "symbol": primeira_moeda.get("symbol")
+            }
+            if primeira_moeda
+            else None
+        )
+
         if len(latlng) == 2:
             countries.append({
                 "name": name,
@@ -384,7 +398,8 @@ def get_countries():
                 "region": region,
                 "capital": capital,
                 "population": population,
-                "latlng": latlng
+                "latlng": latlng,
+                "currency": moeda
             })
 
     return countries

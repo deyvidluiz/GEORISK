@@ -319,8 +319,24 @@ select:focus {
     border-bottom: 1px solid var(--line);
 }
 
-#nome-pais {
+.panel-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-top: 8px;
+}
+
+.bandeira {
+    width: 40px;
+    height: 28px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px var(--line);
+    flex-shrink: 0;
+}
+
+#nome-pais {
+    margin-top: 0;
     font-size: clamp(1.75rem, 4vw, 2.5rem);
     line-height: 1.02;
     overflow-wrap: anywhere;

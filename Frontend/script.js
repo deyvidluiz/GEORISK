@@ -120,7 +120,18 @@ function selecionarPais(code3, aproximar = true) {
     ? country.population.toLocaleString("pt-BR")
     : "Dado nao disponivel";
   document.getElementById("codigo").textContent = country.code || "-";
+  document.getElementById("moeda").textContent = country.currency
+    ? `${country.currency.name}${country.currency.symbol ? " (" + country.currency.symbol + ")" : ""}`
+    : "Dado nao disponivel";
 
+  const bandeira = document.getElementById("bandeira-pais");
+  if (country.code) {
+    bandeira.src = `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`;
+    bandeira.alt = `Bandeira de ${country.name || country.code}`;
+    bandeira.hidden = false;
+  } else {
+    bandeira.hidden = true;
+  }
   renderizarMensagemSistema(`Pergunte sobre ${country.name}.`);
   atualizarPainelConflito();
   atualizarEstilosMapa();
