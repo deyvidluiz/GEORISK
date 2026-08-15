@@ -84,20 +84,22 @@ def chat_ai():
         (
             country
             for country in countries_data
-            if country.get("cca3") == code3
+            if country.get("iso3") == code3
         ),
         None
     )
 
     nome = (
-        pais.get("name", {}).get("common")
+        pais.get("name")
         if pais
         else code3
     )
 
-    capital_list = pais.get("capital") if pais else None
-    capital = capital_list[0] if capital_list else "desconhecida"
-
+    capital = (
+        pais.get("capital")
+        if pais and pais.get("capital")
+        else "desconhecida"
+    )
     regiao = (
         pais.get("region")
         if pais
@@ -357,40 +359,32 @@ def get_countries():
     countries = []
 
     for country in countries_data:
-        name = country.get(
-            "name",
-            {}
-        ).get("common")
-
-        code = country.get("cca2")
-        code3 = country.get("cca3")
+        name = country.get("name")
+        code = country.get("iso2")
+        code3 = country.get("iso3")
         region = country.get("region")
-
-        capital_list = country.get("capital")
-        capital = (
-            capital_list[0]
-            if capital_list
-            else "Sem capital"
-        )
-
+        capital = country.get("capital") or "Sem capital"
         population = country.get("population")
-        latlng = country.get("latlng", [])
 
-        # "currencies" no countries.json vem assim:
-        # {"BRL": {"name": "Brazilian real", "symbol": "R$"}}
-        # Pegamos só a primeira moeda do dicionário.
-        currencies_data = country.get("currencies") or {}
-        primeira_moeda = next(iter(currencies_data.values()), None)
+        try:
+            latlng = [
+                float(country.get("latitude")),
+                float(country.get("longitude"))
+            ]
+        except (TypeError, ValueError):
+            latlng = None
+
         moeda = (
             {
-                "name": primeira_moeda.get("name"),
-                "symbol": primeira_moeda.get("symbol")
+                "code": country.get("currency"),
+                "name": country.get("currency_name"),
+                "symbol": country.get("currency_symbol")
             }
-            if primeira_moeda
+            if country.get("currency")
             else None
         )
 
-        if len(latlng) == 2:
+        if latlng:
             countries.append({
                 "name": name,
                 "code": code,
