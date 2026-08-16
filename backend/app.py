@@ -6,7 +6,10 @@ import csv
 import json
 import os
 import urllib.error
+import urllib.parse
 import urllib.request
+
+from datetime import date
 
 
 # Carrega as variáveis do arquivo .env
@@ -16,6 +19,7 @@ load_dotenv(
 )
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 
 
 # Criação da aplicação Flask
@@ -106,8 +110,14 @@ def chat_ai():
         else "desconhecida"
     )
 
+    from datetime import date
+
+    data_hoje = date.today().strftime("%d/%m/%Y")
+
     instrucao_sistema = f"""
 Você é um analista de geopolítica conversando com um estudante sobre o país {nome}.
+A data de hoje é {data_hoje}. Use a busca do Google para trazer informações atualizadas
+sempre que a pergunta envolver eventos recentes ou situação atual.
 
 Dados do país:
 - Capital: {capital}
@@ -161,7 +171,12 @@ Responda sempre em português, de forma simples e objetiva, sem usar markdown.
                 }
             ]
         },
-        "contents": conteudo
+        "contents": conteudo,
+        "tools": [
+            {
+                "google_search": {}
+            }
+        ]
     }).encode("utf-8")
 
     url = (
@@ -247,6 +262,24 @@ Responda sempre em português, de forma simples e objetiva, sem usar markdown.
         }, 502
 
 
+TIPO_CONFLITO = {
+    "AFG": "guerra", "AGO": "guerra", "BEN": "guerra", "BFA": "guerra",
+    "KHM": "guerra", "CMR": "guerra", "CAF": "guerra", "COL": "guerra",
+    "COD": "guerra", "ETH": "guerra", "HTI": "guerra", "IND": "guerra",
+    "IDN": "guerra", "IRN": "guerra", "IRQ": "guerra", "ISR": "guerra",
+    "KEN": "guerra", "MLI": "guerra", "MOZ": "guerra", "MMR": "guerra",
+    "NER": "guerra", "NGA": "guerra", "PAK": "guerra", "PSE": "guerra",
+    "LBN": "guerra", "RUS": "guerra", "RWA": "guerra", "SOM": "guerra",
+    "SDN": "guerra", "SYR": "guerra", "THA": "guerra", "TGO": "guerra",
+    "UGA": "guerra", "UKR": "guerra", "YEM": "guerra", "SSD": "guerra",
+    "PHL": "guerra", "QAT": "guerra",
+    "ARG": "nao_estatal", "BOL": "nao_estatal", "BRA": "nao_estatal",
+    "TCD": "nao_estatal", "COG": "nao_estatal", "CRI": "nao_estatal",
+    "ECU": "nao_estatal", "GHA": "nao_estatal", "GTM": "nao_estatal",
+    "MEX": "nao_estatal", "PNG": "nao_estatal",
+}
+
+
 @app.route("/api/conflicts")
 def get_conflicts():
     ano = request.args.get("ano", "2025")
@@ -280,15 +313,32 @@ def get_conflicts():
                         "O país"
                     )
 
-                    conflitos.append({
-                        "code3": codigo,
-                        "type": "Conflito armado",
-                        "summary": (
+                    tipo = TIPO_CONFLITO.get(codigo)
+
+                    if tipo == "guerra":
+                        resumo = (
+                            f"{entidade} registrou conflito armado envolvendo "
+                            f"o Estado (governo x rebeldes ou entre países) "
+                            f"em {ano}, segundo dados do UCDP."
+                        )
+                    elif tipo == "nao_estatal":
+                        resumo = (
+                            f"{entidade} registrou violência armada organizada "
+                            f"em {ano} (facções, milícias ou crime organizado, "
+                            f"sem envolvimento direto do governo como parte do "
+                            f"conflito), segundo dados do UCDP."
+                        )
+                    else:
+                        resumo = (
                             f"{entidade} registrou conflito armado ativo "
                             f"em {ano}, segundo dados do UCDP."
                         )
-                    })
 
+                    conflitos.append({
+                        "code3": codigo,
+                        "type": "Conflito armado",
+                        "summary": resumo
+                    })
     except FileNotFoundError:
         return {
             "error": "O arquivo data/conflicts.csv não foi encontrado."
@@ -397,6 +447,70 @@ def get_countries():
             })
 
     return countries
+
+
+@app.route("/api/news")
+def get_news():
+    if not NEWS_API_KEY:
+        return {
+            "error": (
+                "NEWS_API_KEY não foi configurada nas variáveis "
+                "de ambiente do servidor."
+            )
+        }, 500
+
+    query = (
+        "geopolitics OR \"international conflict\" OR "
+        "\"armed conflict\" OR \"foreign policy\""
+    )
+
+    url = (
+        "https://newsapi.org/v2/everything"
+        f"?q={urllib.parse.quote(query)}"
+        "&language=en"
+        "&sortBy=publishedAt"
+        "&pageSize=10"
+        f"&apiKey={NEWS_API_KEY}"
+    )
+
+    try:
+        with urllib.request.urlopen(url, timeout=15) as resposta:
+            data = json.loads(resposta.read().decode("utf-8"))
+
+        artigos = data.get("articles", [])
+
+        noticias = [
+            {
+                "title": artigo.get("title"),
+                "source": (
+                    artigo.get("source", {}).get("name")
+                ),
+                "url": artigo.get("url"),
+                "image": artigo.get("urlToImage"),
+                "publishedAt": artigo.get("publishedAt")
+            }
+            for artigo in artigos
+            if artigo.get("title") and artigo.get("title") != "[Removed]"
+        ]
+
+        return noticias
+
+    except urllib.error.HTTPError as erro:
+        detalhe = erro.read().decode("utf-8", errors="replace")
+        return {
+            "error": f"Erro ao buscar notícias: HTTP {erro.code}: {detalhe}"
+        }, 502
+
+    except Exception as erro:
+        return {
+            "error": (
+                "Erro inesperado ao buscar notícias: "
+                f"{type(erro).__name__}: {erro}"
+            )
+        }, 502
+
+
+# Este bloco deve sempre ficar no final do arquivo.
 
 
 # Este bloco deve sempre ficar no final do arquivo.

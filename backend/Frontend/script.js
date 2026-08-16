@@ -340,3 +340,56 @@ document.querySelectorAll(".prompt-btn").forEach(button => {
 });
 
 carregarMapa();
+async function carregarNoticias() {
+  const container = document.getElementById("carrossel-noticias");
+
+  try {
+    const resposta = await fetch(`${API_URL}/api/news`);
+
+    if (!resposta.ok) {
+      throw new Error(`HTTP ${resposta.status}`);
+    }
+
+    const noticias = await resposta.json();
+
+    if (!Array.isArray(noticias) || noticias.length === 0) {
+      container.innerHTML = "<p class='carrossel-carregando'>Nenhuma notícia encontrada.</p>";
+      return;
+    }
+
+    container.innerHTML = "";
+
+    noticias.forEach((noticia) => {
+      const card = document.createElement("a");
+      card.className = "noticia-card";
+      card.href = noticia.url;
+      card.target = "_blank";
+      card.rel = "noopener noreferrer";
+
+      const imagemSrc = noticia.image || "";
+
+      card.innerHTML = `
+        ${imagemSrc ? `<img src="${imagemSrc}" alt="" loading="lazy">` : ""}
+        <div class="noticia-card-corpo">
+          <span class="noticia-fonte">${noticia.source || "Fonte desconhecida"}</span>
+          <span class="noticia-titulo">${noticia.title}</span>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+  } catch (erro) {
+    container.innerHTML = "<p class='carrossel-carregando'>Erro ao carregar notícias.</p>";
+    console.error("Erro ao carregar notícias:", erro);
+  }
+}
+
+document.getElementById("carrossel-anterior").addEventListener("click", () => {
+  document.getElementById("carrossel-noticias").scrollBy({ left: -280, behavior: "smooth" });
+});
+
+document.getElementById("carrossel-proximo").addEventListener("click", () => {
+  document.getElementById("carrossel-noticias").scrollBy({ left: 280, behavior: "smooth" });
+});
+
+carregarNoticias();
