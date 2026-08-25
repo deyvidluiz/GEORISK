@@ -728,3 +728,105 @@ select:focus {
     color: var(--muted);
     padding: 20px;
 }
+#comparacao-secao {
+    max-width: 1300px;
+    margin: 24px auto 0;
+    padding: 0 22px;
+}
+
+.comparacao-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-bottom: 14px;
+}
+
+.comparacao-cabecalho h2 {
+    margin-top: 4px;
+    font-size: 1.4rem;
+}
+
+#comparacao-instrucao {
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 0.88rem;
+}
+
+.comparacao-btn {
+    min-height: 42px;
+    padding: 0 18px;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.045);
+    color: var(--text);
+    font-weight: 800;
+    transition: border-color 160ms ease, background 160ms ease;
+}
+
+.comparacao-btn:hover {
+    border-color: rgba(73, 199, 162, 0.55);
+    background: rgba(73, 199, 162, 0.1);
+}
+
+.comparacao-btn.ativo {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #051412;
+}
+
+.comparacao-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.comparacao-corpo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 6px;
+}
+
+.comparacao-coluna {
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 18px;
+}
+
+.comparacao-rotulo {
+    display: block;
+    color: var(--warning);
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.comparacao-coluna h3 {
+    margin-top: 6px;
+    font-size: 1.3rem;
+}
+
+.comparacao-ia {
+    margin-top: 16px;
+    padding: 18px;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    background: var(--surface);
+}
+
+.comparacao-ia-resultado {
+    margin-top: 12px;
+    color: #e8f3ef;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+@media (max-width: 700px) {
+    .comparacao-corpo {
+        grid-template-columns: 1fr;
+    }
+}

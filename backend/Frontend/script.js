@@ -6,6 +6,11 @@ let paisSelecionado = null;
 let codigoSelecionado = null;
 let historicoChat = [];
 
+let modoComparacao = false;
+let comparacaoA = null;
+let comparacaoB = null;
+let cacheAnaliseComparacao = {};
+
 const API_URL = window.location.protocol === "file:"
   ? "http://127.0.0.1:5000"
   : "";
@@ -20,6 +25,29 @@ function conflitoAtivo(code3) {
 }
 
 function estiloPais(feature) {
+  if (modoComparacao) {
+    const isA = comparacaoA && feature.id === comparacaoA.code3;
+    const isB = comparacaoB && feature.id === comparacaoB.code3;
+
+    if (isA || isB) {
+      return {
+        color: isA ? "#4fa8f4" : "#f4c95d",
+        weight: 3,
+        fillColor: isA ? "#4fa8f4" : "#f4c95d",
+        fillOpacity: 0.5,
+        opacity: 0.95
+      };
+    }
+
+    return {
+      color: "#3a4a48",
+      weight: 1,
+      fillColor: "#3a4a48",
+      fillOpacity: 0.08,
+      opacity: 0.6
+    };
+  }
+
   const emAlerta = conflitoAtivo(feature.id);
   const selecionado = feature.id === codigoSelecionado;
 
@@ -142,6 +170,72 @@ function selecionarPais(code3, aproximar = true) {
       maxZoom: 5,
       padding: [34, 34]
     });
+  }
+}
+function selecionarParaComparacao(code3) {
+  const country = countriesByCode[code3];
+
+  if (!country) {
+    return;
+  }
+
+  if (!comparacaoA || (comparacaoA && comparacaoB)) {
+    comparacaoA = country;
+    comparacaoB = null;
+  } else if (country.code3 === comparacaoA.code3) {
+    return;
+  } else {
+    comparacaoB = country;
+  }
+
+  atualizarPainelComparacao();
+  atualizarEstilosMapa();
+}
+
+function preencherColunaComparacao(prefixo, country) {
+  document.getElementById(`comparacao-${prefixo}-nome`).textContent = country.name || "-";
+  document.getElementById(`comparacao-${prefixo}-capital`).textContent = country.capital || "Sem capital";
+  document.getElementById(`comparacao-${prefixo}-regiao`).textContent = country.region || "Regiao nao disponivel";
+  document.getElementById(`comparacao-${prefixo}-populacao`).textContent = country.population
+    ? country.population.toLocaleString("pt-BR")
+    : "Dado nao disponivel";
+  document.getElementById(`comparacao-${prefixo}-moeda`).textContent = country.currency
+    ? `${country.currency.name}${country.currency.symbol ? " (" + country.currency.symbol + ")" : ""}`
+    : "Dado nao disponivel";
+
+  const conflito = conflitosByCode[country.code3];
+  document.getElementById(`comparacao-${prefixo}-conflito`).textContent = conflito
+    ? conflito.type
+    : "Sem alerta no ano selecionado";
+}
+
+function atualizarPainelComparacao() {
+  const instrucao = document.getElementById("comparacao-instrucao");
+  const corpo = document.getElementById("comparacao-corpo");
+  const blocoIA = document.getElementById("comparacao-ia");
+  const resultadoIA = document.getElementById("comparacao-ia-resultado");
+
+  if (comparacaoA) {
+    preencherColunaComparacao("a", comparacaoA);
+  }
+
+  if (comparacaoB) {
+    preencherColunaComparacao("b", comparacaoB);
+  }
+
+  if (comparacaoA && comparacaoB) {
+    corpo.hidden = false;
+    blocoIA.hidden = false;
+    instrucao.textContent = `Comparando ${comparacaoA.name} e ${comparacaoB.name}. Clique em outro pais para trocar.`;
+    resultadoIA.textContent = "";
+  } else if (comparacaoA) {
+    corpo.hidden = false;
+    blocoIA.hidden = true;
+    instrucao.textContent = `${comparacaoA.name} selecionado. Clique em um segundo pais no mapa.`;
+  } else {
+    corpo.hidden = true;
+    blocoIA.hidden = true;
+    instrucao.textContent = "Ative o modo comparacao e clique em dois paises no mapa.";
   }
 }
 
@@ -293,7 +387,13 @@ async function carregarMapa() {
           opacity: 0.92
         });
 
-        layer.on("click", () => selecionarPais(code3, false));
+        layer.on("click", () => {
+          if (modoComparacao) {
+            selecionarParaComparacao(code3);
+          } else {
+            selecionarPais(code3, false);
+          }
+        });
         layer.on("mouseover", () => {
           layer.setStyle({
             fillOpacity: 0.62,
@@ -339,7 +439,70 @@ document.querySelectorAll(".prompt-btn").forEach(button => {
   });
 });
 
+document.getElementById("comparacao-toggle").addEventListener("click", () => {
+  modoComparacao = !modoComparacao;
+
+  const botao = document.getElementById("comparacao-toggle");
+  botao.textContent = modoComparacao ? "Desativar modo comparacao" : "Ativar modo comparacao";
+  botao.classList.toggle("ativo", modoComparacao);
+
+  comparacaoA = null;
+  comparacaoB = null;
+  atualizarPainelComparacao();
+  atualizarEstilosMapa();
+});
+
+document.getElementById("comparacao-analisar").addEventListener("click", async () => {
+  if (!comparacaoA || !comparacaoB) {
+    return;
+  }
+
+  const botao = document.getElementById("comparacao-analisar");
+  const resultado = document.getElementById("comparacao-ia-resultado");
+  const chave = [comparacaoA.code3, comparacaoB.code3].sort().join("_");
+
+  if (cacheAnaliseComparacao[chave]) {
+    resultado.textContent = cacheAnaliseComparacao[chave];
+    return;
+  }
+
+  botao.disabled = true;
+  botao.textContent = "Analisando...";
+  resultado.textContent = "";
+
+  try {
+    const resposta = await fetch(`${API_URL}/api/ai/compare`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        code3_a: comparacaoA.code3,
+        code3_b: comparacaoB.code3
+      })
+    });
+
+    const data = await resposta.json().catch(() => {
+      throw new Error(`O servidor retornou uma resposta invalida. HTTP ${resposta.status}`);
+    });
+
+    if (!resposta.ok) {
+      throw new Error(data.error || `Erro HTTP ${resposta.status}`);
+    }
+
+    cacheAnaliseComparacao[chave] = data.reply;
+    resultado.textContent = data.reply;
+  } catch (erro) {
+    console.error("Erro ao comparar paises:", erro);
+    resultado.textContent = "Erro ao consultar a IA. Tente novamente.";
+  } finally {
+    botao.disabled = false;
+    botao.textContent = "Analisar com IA";
+  }
+});
+
 carregarMapa();
+
 async function carregarNoticias() {
   const container = document.getElementById("carrossel-noticias");
 

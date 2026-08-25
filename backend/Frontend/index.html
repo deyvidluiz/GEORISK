@@ -116,7 +116,50 @@
                 </section>
             </aside>
         </main>
+    </main>
 
+    <section id="comparacao-secao" aria-label="Comparacao entre paises">
+        <div class="comparacao-cabecalho">
+            <div>
+                <span class="panel-kicker">Modo comparacao</span>
+                <h2>Compare dois paises</h2>
+                <p id="comparacao-instrucao">Ative o modo comparacao e clique em dois paises no mapa.</p>
+            </div>
+            <button id="comparacao-toggle" class="comparacao-btn" type="button">Ativar modo comparacao</button>
+        </div>
+
+        <div id="comparacao-corpo" class="comparacao-corpo" hidden>
+            <div class="comparacao-coluna" id="comparacao-a">
+                <span class="comparacao-rotulo">Pais A</span>
+                <h3 id="comparacao-a-nome">-</h3>
+                <dl class="country-facts">
+                    <div><dt>Capital</dt><dd id="comparacao-a-capital">-</dd></div>
+                    <div><dt>Regiao</dt><dd id="comparacao-a-regiao">-</dd></div>
+                    <div><dt>Populacao</dt><dd id="comparacao-a-populacao">-</dd></div>
+                    <div><dt>Moeda</dt><dd id="comparacao-a-moeda">-</dd></div>
+                    <div><dt>Conflito</dt><dd id="comparacao-a-conflito">-</dd></div>
+                </dl>
+            </div>
+
+            <div class="comparacao-coluna" id="comparacao-b">
+                <span class="comparacao-rotulo">Pais B</span>
+                <h3 id="comparacao-b-nome">-</h3>
+                <dl class="country-facts">
+                    <div><dt>Capital</dt><dd id="comparacao-b-capital">-</dd></div>
+                    <div><dt>Regiao</dt><dd id="comparacao-b-regiao">-</dd></div>
+                    <div><dt>Populacao</dt><dd id="comparacao-b-populacao">-</dd></div>
+                    <div><dt>Moeda</dt><dd id="comparacao-b-moeda">-</dd></div>
+                    <div><dt>Conflito</dt><dd id="comparacao-b-conflito">-</dd></div>
+                </dl>
+            </div>
+        </div>
+
+        <div id="comparacao-ia" class="comparacao-ia" hidden>
+            <button id="comparacao-analisar" class="comparacao-btn" type="button">Analisar com IA</button>
+            <div id="comparacao-ia-resultado" class="comparacao-ia-resultado"></div>
+        </div>
+    </section>
+    
         <section id="noticias-secao">
             <div class="noticias-cabecalho">
                 <span class="panel-kicker">Radar global</span>

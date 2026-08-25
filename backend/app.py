@@ -262,6 +262,157 @@ Responda sempre em português, de forma simples e objetiva, sem usar markdown.
         }, 502
 
 
+CACHE_COMPARACOES = {}
+
+
+@app.route("/api/ai/compare", methods=["POST"])
+def compare_ai():
+    if not GEMINI_API_KEY:
+        return {
+            "error": (
+                "GEMINI_API_KEY não foi configurada nas variáveis "
+                "de ambiente do servidor."
+            )
+        }, 500
+
+    dados = request.get_json(silent=True) or {}
+
+    code3_a = dados.get("code3_a")
+    code3_b = dados.get("code3_b")
+
+    if not code3_a or not code3_b:
+        return {
+            "error": "Faltam dados obrigatórios: code3_a ou code3_b."
+        }, 400
+
+    chave_cache = "_".join(sorted([code3_a, code3_b]))
+
+    if chave_cache in CACHE_COMPARACOES:
+        return {
+            "reply": CACHE_COMPARACOES[chave_cache]
+        }
+
+    caminho_countries = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "countries.json"
+    )
+
+    try:
+        with open(caminho_countries, "r", encoding="utf-8") as arquivo:
+            countries_data = json.load(arquivo)
+    except FileNotFoundError:
+        return {
+            "error": "O arquivo data/countries.json não foi encontrado."
+        }, 500
+    except json.JSONDecodeError:
+        return {
+            "error": "O arquivo countries.json possui formato inválido."
+        }, 500
+
+    def buscar_pais(code3):
+        return next(
+            (c for c in countries_data if c.get("iso3") == code3),
+            None
+        )
+
+    pais_a = buscar_pais(code3_a)
+    pais_b = buscar_pais(code3_b)
+
+    nome_a = pais_a.get("name") if pais_a else code3_a
+    nome_b = pais_b.get("name") if pais_b else code3_b
+
+    data_hoje = date.today().strftime("%d/%m/%Y")
+
+    instrucao_sistema = f"""
+Você é um analista de geopolítica. A data de hoje é {data_hoje}.
+Compare {nome_a} e {nome_b} em termos de contexto geopolítico atual,
+estabilidade e principais riscos de segurança. Use a busca do Google
+para trazer informações atualizadas quando necessário.
+Responda em português, de forma objetiva, sem markdown, em no máximo
+6 parágrafos curtos.
+""".strip()
+
+    payload = json.dumps({
+        "systemInstruction": {
+            "parts": [
+                {
+                    "text": instrucao_sistema
+                }
+            ]
+        },
+        "contents": [
+            {
+                "role": "user",
+                "parts": [
+                    {
+                        "text": f"Compare {nome_a} e {nome_b}."
+                    }
+                ]
+            }
+        ],
+        "tools": [
+            {
+                "google_search": {}
+            }
+        ]
+    }).encode("utf-8")
+
+    url = (
+        "https://generativelanguage.googleapis.com/v1beta/"
+        "models/gemini-2.5-flash-lite:generateContent"
+        f"?key={GEMINI_API_KEY}"
+    )
+
+    requisicao = urllib.request.Request(
+        url,
+        data=payload,
+        headers={
+            "Content-Type": "application/json"
+        },
+        method="POST"
+    )
+
+    try:
+        with urllib.request.urlopen(requisicao, timeout=30) as resposta:
+            data = json.loads(resposta.read().decode("utf-8"))
+
+        candidatos = data.get("candidates", [])
+
+        if not candidatos:
+            return {"error": "A IA não retornou nenhuma resposta."}, 502
+
+        partes = candidatos[0].get("content", {}).get("parts", [])
+
+        if not partes:
+            return {"error": "A IA respondeu sem conteúdo."}, 502
+
+        reply = partes[0].get("text")
+
+        if not reply:
+            return {"error": "A IA respondeu sem texto."}, 502
+
+        CACHE_COMPARACOES[chave_cache] = reply
+
+        return {"reply": reply}
+
+    except urllib.error.HTTPError as erro:
+        detalhe = erro.read().decode("utf-8", errors="replace")
+        return {
+            "error": f"Erro ao conectar com a IA: HTTP {erro.code}: {detalhe}"
+        }, 502
+
+    except urllib.error.URLError as erro:
+        return {
+            "error": f"Não foi possível conectar ao serviço da IA: {erro.reason}"
+        }, 502
+
+    except Exception as erro:
+        return {
+            "error": f"Erro inesperado ao conectar com a IA: {type(erro).__name__}: {erro}"
+        }, 502
+
+
 TIPO_CONFLITO = {
     "AFG": "guerra", "AGO": "guerra", "BEN": "guerra", "BFA": "guerra",
     "KHM": "guerra", "CMR": "guerra", "CAF": "guerra", "COL": "guerra",
