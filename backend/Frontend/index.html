@@ -7,58 +7,62 @@
     <title>GeoRisk</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+    <script src="theme.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="app-shell">
+        <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+            <a class="logo" href="#dashboard" aria-label="GeoRisk — início">
+                <svg class="brand-mark" viewBox="0 0 56 64" fill="none" aria-hidden="true">
+                    <defs><linearGradient id="brand-gradient" x1="4" y1="4" x2="50" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#38bdf8"/><stop offset="1" stop-color="#10d9a0"/></linearGradient></defs>
+                    <path d="M28 3C14 3 4 13 4 26c0 17 24 35 24 35s24-18 24-35C52 13 42 3 28 3Z" fill="url(#brand-gradient)"/>
+                    <circle cx="28" cy="26" r="17" fill="#0d2a44"/>
+                    <g stroke="#6ce6d0" stroke-width="1.5"><ellipse cx="28" cy="26" rx="8" ry="17"/><path d="M11 26h34M14 18h28M14 34h28"/></g>
+                    <circle cx="28" cy="26" r="4" fill="#f0fdfa"/>
+                </svg>
+                <span class="brand-name">GEO<b>RISK</b><small>INTELIGÊNCIA GEOGRÁFICA</small></span>
+            </a>
+            <p class="brand-tagline">MONITORANDO HOJE<br>UM AMANHÃ MAIS SEGURO</p>
+            <nav>
+                <a href="#dashboard" class="active" aria-current="page"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m3 10 9-7 9 7v10H3zM9 20v-7h6v7"/></svg></span>Dashboard</a>
+                <a href="#mapa"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2zM9 3v16M15 5v16"/></svg></span>Mapa de Riscos</a>
+                <a href="#painel"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12 3 10 18H2zM12 9v5"/><path d="M12 17h.01"/></svg></span>Áreas de Risco</a>
+                <a href="#noticias-secao"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 3h10l4 4v14H5zM14 3v5h5M9 12h6M9 16h6"/></svg></span>Ocorrências</a>
+                <a href="#alertas"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span>Alertas</a>
+                <a href="#comparacao-secao"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 21V11h3v10M10 21V6h3v15M16 21V3h3v18"/></svg></span>Relatórios</a>
+                <a href="#configuracoes"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 3-1 3-3 1-2 4 2 2v4l4 2 3-1 3 1 4-2v-4l2-2-2-4-3-1-1-3z"/><circle cx="12" cy="12" r="3"/></svg></span>Configurações</a>
+            </nav>
+            <div class="sidebar-footer">Territórios mais seguros<br>para pessoas mais fortes.<small>GEORISK · Monitoramento global</small></div>
+        </aside>
+        <button class="sidebar-backdrop" aria-label="Fechar navegação" hidden></button>
         <header class="topbar">
-            <div class="brand">
-                <span class="eyebrow">Monitoramento internacional</span>
-                <h1>GeoRisk</h1>
-                <p>Explore conflitos armados por ano, pais e contexto geopolitico.</p>
-            </div>
-
-            <div class="top-actions" aria-label="Resumo do periodo">
-                <div class="metric">
-                    <span id="total-conflitos">0</span>
-                    <small>paises em alerta</small>
-                </div>
-                <div class="metric">
-                    <span id="ano-atual">2025</span>
-                    <small>ano analisado</small>
-                </div>
-            </div>
+            <button id="sidebar-toggle" class="icon-button" aria-label="Alternar navegação" aria-controls="sidebar" aria-expanded="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            <label class="search-box" for="busca-pais"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg></span><input id="busca-pais" type="search" placeholder="Buscar países ou códigos..." aria-label="Buscar país" autocomplete="off"></label>
+            <a href="#alertas" class="notification" aria-label="Consultar alertas"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></a>
+            <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Tema escuro" aria-pressed="false">
+                <svg class="ui-icon theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 15.5A9 9 0 0 1 8.5 4 9 9 0 1 0 20 15.5Z"/></svg>
+                <svg class="ui-icon theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+                <span id="theme-label">Tema escuro</span>
+            </button>
         </header>
-
-        <main class="workspace">
-            <section class="map-area" aria-label="Mapa interativo de conflitos">
-                <div class="map-toolbar">
-                    <label class="search-box" for="busca-pais">
-                        <span>Buscar</span>
-                        <input id="busca-pais" type="search" placeholder="Digite um pais ou codigo" autocomplete="off">
-                    </label>
-
-                    <label class="year-control" for="seletor-ano">
-                        <span>Ano</span>
-                        <select id="seletor-ano"></select>
-                    </label>
-                </div>
-
-                <div id="map"></div>
-
-                <div class="legend" aria-label="Legenda do mapa">
-                    <span><i class="legend-dot danger"></i>Conflito armado</span>
-                    <span><i class="legend-dot neutral"></i>Sem alerta no ano</span>
-                </div>
-            </section>
-
-            <aside id="painel" aria-label="Detalhes do pais selecionado">
+        <main id="dashboard" class="dashboard">
+            <section class="page-heading"><div><h1><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 3v18h18M5 15l5-5 4 3 7-8"/></svg></span> Painel de Monitoramento</h1><p>Visão geral das áreas monitoradas e alertas ativos</p></div><div class="system-info"><time id="data-hoje"></time><span id="system-status" role="status">Verificando conexão…</span></div></section>
+            <div class="workspace">
+                <section class="map-area" id="mapa" aria-label="Mapa interativo de conflitos">
+                    <div class="map-toolbar"><h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2zM9 3v16M15 5v16"/></svg> &nbsp; Mapa de Monitoramento</h2><label class="year-control" for="seletor-ano">Ano <select id="seletor-ano"></select></label><button id="map-expand" class="icon-button" aria-label="Ampliar mapa" aria-pressed="false"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5"/></svg></button></div>
+                    <div id="map"></div>
+                    <div class="legend" aria-label="Legenda do mapa"><span><i class="legend-dot danger"></i>Conflito armado</span><span><i class="legend-dot neutral"></i>Sem alerta no ano</span></div>
+                </section>
+                <section id="alertas" class="card recent-alerts"><div class="section-heading"><h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg> &nbsp; Alertas Recentes</h2><span id="ano-atual">2025</span></div><p class="data-note">Registros anuais · sem ordem de atualização</p><div id="alert-list" aria-live="polite"><p class="empty-state">Carregando alertas…</p></div></section>
+            </div>
+            <aside id="painel" aria-label="Detalhes do país selecionado">
                 <div class="panel-header">
-                    <span class="panel-kicker">Analise do pais</span>
+                    <span class="panel-kicker">Análise do país</span>
                     <div class="panel-title-row">
                         <img id="bandeira-pais" class="bandeira" alt="" hidden>
-                        <h2 id="nome-pais">Selecione um pais</h2>
+                        <h2 id="nome-pais">Selecione um país</h2>
                     </div>
                     <p id="painel-subtitulo">Clique no mapa ou use a busca para abrir os dados.</p>
                 </div>
@@ -74,11 +78,11 @@
                         <dd id="capital">-</dd>
                     </div>
                     <div>
-                        <dt>Regiao</dt>
+                        <dt>Região</dt>
                         <dd id="regiao">-</dd>
                     </div>
                     <div>
-                        <dt>Populacao</dt>
+                        <dt>População</dt>
                         <dd id="populacao">-</dd>
                     </div>
                     <div>
@@ -86,7 +90,7 @@
                         <dd id="moeda">-</dd>
                     </div>
                     <div>
-                        <dt>Codigo</dt>
+                        <dt>Código</dt>
                         <dd id="codigo">-</dd>
                     </div>
                 </dl>
@@ -94,60 +98,59 @@
                 <section id="chat-ia">
                     <div class="chat-heading">
                         <div>
-                            <span class="panel-kicker">IA geopolitica</span>
-                            <h3>Converse sobre o pais</h3>
+                            <span class="panel-kicker">IA geopolítica</span>
+                            <h3>Converse sobre o país</h3>
                         </div>
                     </div>
 
-                    <div class="prompt-row" aria-label="Perguntas rapidas">
+                    <div class="prompt-row" aria-label="Perguntas rápidas">
                         <button class="prompt-btn" type="button" data-prompt="Resuma o contexto de seguranca deste pais.">Contexto</button>
-                        <button class="prompt-btn" type="button" data-prompt="Quais fatores historicos ajudam a explicar os conflitos?">Historico</button>
+                        <button class="prompt-btn" type="button" data-prompt="Quais fatores historicos ajudam a explicar os conflitos?">Histórico</button>
                         <button class="prompt-btn" type="button" data-prompt="Quais indicadores devo acompanhar neste pais?">Indicadores</button>
                     </div>
 
                     <div id="chat-mensagens"></div>
 
                     <form id="chat-form">
-                        <input id="chat-input" type="text" placeholder="Pergunte sobre o pais selecionado" autocomplete="off">
+                        <input id="chat-input" type="text" placeholder="Pergunte sobre o país selecionado" autocomplete="off">
                         <button id="chat-enviar" type="submit">Enviar</button>
                     </form>
 
                     <p id="chat-erro"></p>
                 </section>
             </aside>
-        </main>
-    </main>
 
-    <section id="comparacao-secao" aria-label="Comparacao entre paises">
+
+    <section id="comparacao-secao" aria-label="Comparação entre países">
         <div class="comparacao-cabecalho">
             <div>
-                <span class="panel-kicker">Modo comparacao</span>
-                <h2>Compare dois paises</h2>
-                <p id="comparacao-instrucao">Ative o modo comparacao e clique em dois paises no mapa.</p>
+                <span class="panel-kicker">Modo comparação</span>
+                <h2>Compare dois países</h2>
+                <p id="comparacao-instrucao">Ative o modo comparação e clique em dois países no mapa.</p>
             </div>
-            <button id="comparacao-toggle" class="comparacao-btn" type="button">Ativar modo comparacao</button>
+            <button id="comparacao-toggle" class="comparacao-btn" type="button">Ativar modo comparação</button>
         </div>
 
         <div id="comparacao-corpo" class="comparacao-corpo" hidden>
             <div class="comparacao-coluna" id="comparacao-a">
-                <span class="comparacao-rotulo">Pais A</span>
+                <span class="comparacao-rotulo">País A</span>
                 <h3 id="comparacao-a-nome">-</h3>
                 <dl class="country-facts">
                     <div><dt>Capital</dt><dd id="comparacao-a-capital">-</dd></div>
-                    <div><dt>Regiao</dt><dd id="comparacao-a-regiao">-</dd></div>
-                    <div><dt>Populacao</dt><dd id="comparacao-a-populacao">-</dd></div>
+                    <div><dt>Região</dt><dd id="comparacao-a-regiao">-</dd></div>
+                    <div><dt>População</dt><dd id="comparacao-a-populacao">-</dd></div>
                     <div><dt>Moeda</dt><dd id="comparacao-a-moeda">-</dd></div>
                     <div><dt>Conflito</dt><dd id="comparacao-a-conflito">-</dd></div>
                 </dl>
             </div>
 
             <div class="comparacao-coluna" id="comparacao-b">
-                <span class="comparacao-rotulo">Pais B</span>
+                <span class="comparacao-rotulo">País B</span>
                 <h3 id="comparacao-b-nome">-</h3>
                 <dl class="country-facts">
                     <div><dt>Capital</dt><dd id="comparacao-b-capital">-</dd></div>
-                    <div><dt>Regiao</dt><dd id="comparacao-b-regiao">-</dd></div>
-                    <div><dt>Populacao</dt><dd id="comparacao-b-populacao">-</dd></div>
+                    <div><dt>Região</dt><dd id="comparacao-b-regiao">-</dd></div>
+                    <div><dt>População</dt><dd id="comparacao-b-populacao">-</dd></div>
                     <div><dt>Moeda</dt><dd id="comparacao-b-moeda">-</dd></div>
                     <div><dt>Conflito</dt><dd id="comparacao-b-conflito">-</dd></div>
                 </dl>
@@ -173,38 +176,13 @@
                 <button id="carrossel-proximo" class="carrossel-seta" aria-label="Próxima">›</button>
             </div>
         </section>
+        <section id="configuracoes" class="card settings"><h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 3-1 3-3 1-2 4 2 2v4l4 2 3-1 3 1 4-2v-4l2-2-2-4-3-1-1-3z"/><circle cx="12" cy="12" r="3"/></svg> &nbsp; Configurações</h2><p>O período de consulta pode ser alterado no seletor de ano do mapa. Outras configurações ainda não estão disponíveis.</p></section>
+        <footer class="page-footer"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12 3 8 3v6c0 4-8 9-8 9s-8-5-8-9V6zM8 12l3 3 5-6"/></svg> &nbsp; Dados que ajudam a compreender o mundo</footer>
+        </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        const map = L.map("map", {
-            maxBounds: [[-90, -180], [90, 180]],
-            maxBoundsViscosity: 1.0,
-            worldCopyJump: false,
-            zoomControl: false
-        });
-
-        L.control.zoom({ position: "bottomleft" }).addTo(map);
-
-        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 19,
-            noWrap: true,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-
-        map.fitWorld();
-
-        window.addEventListener("load", () => {
-            setTimeout(() => {
-                map.invalidateSize();
-                map.fitWorld();
-            }, 250);
-        });
-
-        window.addEventListener("resize", () => {
-            map.invalidateSize();
-        });
-    </script>
+    <script src="map.js"></script>
     <script src="script.js"></script>
 </body>
 

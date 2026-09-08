@@ -17,7 +17,6 @@ const API_URL = window.location.protocol === "file:"
 
 const seletor = document.getElementById("seletor-ano");
 const buscaPais = document.getElementById("busca-pais");
-const totalConflitos = document.getElementById("total-conflitos");
 const anoAtual = document.getElementById("ano-atual");
 
 function conflitoAtivo(code3) {
@@ -96,12 +95,12 @@ async function carregarConflitos(ano) {
       conflitosByCode[conflito.code3] = conflito;
     });
 
-    totalConflitos.textContent = conflitos.length.toLocaleString("pt-BR");
+    renderizarDashboard(conflitos);
     atualizarEstilosMapa();
     atualizarPainelConflito();
   } catch (error) {
     console.error("Erro ao carregar conflitos:", error);
-    totalConflitos.textContent = "-";
+    document.getElementById("alert-list").textContent = "Não foi possível carregar os alertas deste ano.";
   }
 }
 
@@ -151,7 +150,7 @@ function selecionarPais(code3, aproximar = true) {
     document.getElementById("moeda").textContent = country.currency
       ? `${country.currency.name}${country.currency.symbol ? " (" + country.currency.symbol + ")" : ""}`
       : "Dado nao disponivel";
-  
+
     const bandeira = document.getElementById("bandeira-pais");
     if (country.code) {
       bandeira.src = `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`;
@@ -160,7 +159,7 @@ function selecionarPais(code3, aproximar = true) {
     } else {
       bandeira.hidden = true;
     }
-  
+
     renderizarMensagemSistema(`Pergunte sobre ${country.name}.`);
   atualizarPainelConflito();
   atualizarEstilosMapa();
@@ -338,6 +337,9 @@ async function enviarPergunta(mensagem) {
 
     historicoChat.push({ role: "user", text: mensagem });
     historicoChat.push({ role: "assistant", text: data.reply });
+
+    setTimeout(() => map.invalidateSize(), 50);
+
   } catch (error) {
     mensagemCarregando.remove();
     console.error("Erro ao conectar com a IA:", error);
@@ -366,6 +368,7 @@ async function carregarMapa() {
         countriesByCode[country.code3] = country;
       }
     });
+
 
     const bordersResponse = await fetch(`${API_URL}/api/borders`);
 
@@ -459,7 +462,7 @@ document.getElementById("comparacao-analisar").addEventListener("click", async (
 
   const botao = document.getElementById("comparacao-analisar");
   const resultado = document.getElementById("comparacao-ia-resultado");
-  const chave = [comparacaoA.code3, comparacaoB.code3].sort().join("_");
+  const chave = "pt-BR_v2_" + [comparacaoA.code3, comparacaoB.code3].sort().join("_");
 
   if (cacheAnaliseComparacao[chave]) {
     resultado.textContent = cacheAnaliseComparacao[chave];
@@ -492,6 +495,8 @@ document.getElementById("comparacao-analisar").addEventListener("click", async (
 
     cacheAnaliseComparacao[chave] = data.reply;
     resultado.textContent = data.reply;
+
+    setTimeout(() => map.invalidateSize(), 50);
   } catch (erro) {
     console.error("Erro ao comparar paises:", erro);
     resultado.textContent = "Erro ao consultar a IA. Tente novamente.";
@@ -556,3 +561,95 @@ document.getElementById("carrossel-proximo").addEventListener("click", () => {
 });
 
 carregarNoticias();
+
+// Indicadores usam somente os dados já expostos pelo GeoRisk.
+function renderizarDashboard(conflitos) {
+  const lista = document.getElementById("alert-list");
+  lista.replaceChildren();
+  if (!conflitos.length) {
+    lista.textContent = "Nenhum conflito registrado no ano selecionado.";
+  }
+  conflitos.forEach(conflito => {
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "alert-item";
+    const marcador = document.createElement("i");
+    marcador.setAttribute("aria-hidden", "true");
+    const texto = document.createElement("div");
+    const tipo = document.createElement("strong");
+    tipo.textContent = conflito.type;
+    const pais = document.createElement("span");
+    pais.textContent = countriesByCode[conflito.code3]?.name || conflito.code3;
+    const resumo = document.createElement("small");
+    resumo.textContent = conflito.summary;
+    texto.append(tipo, pais, resumo);
+    botao.append(marcador, texto);
+    botao.disabled = !countriesByCode[conflito.code3];
+    botao.addEventListener("click", () => {
+      selecionarPais(conflito.code3);
+      document.getElementById("painel").scrollIntoView({block:"start"});
+    });
+    lista.appendChild(botao);
+  });
+}
+
+const sidebarToggle = document.getElementById("sidebar-toggle");
+const backdrop = document.querySelector(".sidebar-backdrop");
+const mobileSidebar = window.matchMedia("(max-width: 1000px)");
+function sincronizarSidebar() {
+  const aberta = mobileSidebar.matches
+    ? document.body.classList.contains("sidebar-open")
+    : !document.body.classList.contains("sidebar-collapsed");
+  sidebarToggle.setAttribute("aria-expanded", String(aberta));
+  backdrop.hidden = !(mobileSidebar.matches && aberta);
+  map.invalidateSize();
+}
+sidebarToggle.addEventListener("click", () => {
+  document.body.classList.toggle(mobileSidebar.matches ? "sidebar-open" : "sidebar-collapsed");
+  sincronizarSidebar();
+});
+function fecharSidebar() {
+  document.body.classList.remove("sidebar-open");
+  sincronizarSidebar();
+}
+backdrop.addEventListener("click", fecharSidebar);
+mobileSidebar.addEventListener("change", sincronizarSidebar);
+document.querySelectorAll(".sidebar nav a").forEach(link => {
+  link.addEventListener("click", () => {
+    document.querySelectorAll(".sidebar nav a").forEach(item => {
+      item.classList.remove("active");
+      item.removeAttribute("aria-current");
+    });
+    link.classList.add("active");
+    link.setAttribute("aria-current", "location");
+    fecharSidebar();
+  });
+});
+const expandir = document.getElementById("map-expand");
+function expandirMapa(estado) {
+  document.getElementById("mapa").classList.toggle("expanded", estado);
+  expandir.setAttribute("aria-pressed", String(estado));
+  expandir.setAttribute("aria-label", estado ? "Restaurar mapa" : "Ampliar mapa");
+  map.invalidateSize();
+}
+expandir.addEventListener("click", () => expandirMapa(expandir.getAttribute("aria-pressed") !== "true"));
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    fecharSidebar();
+    expandirMapa(false);
+    sidebarToggle.focus();
+  }
+});
+document.getElementById("data-hoje").textContent = new Intl.DateTimeFormat("pt-BR", {dateStyle:"long"}).format(new Date());
+fetch(`${API_URL}/api/health`).then(response => {
+  if (!response.ok) throw new Error("Conexão indisponível");
+  return response.json();
+}).then(data => {
+  if (data.status !== "ok") throw new Error("Conexão indisponível");
+  const status = document.getElementById("system-status");
+  status.textContent = "● Servidor conectado";
+  status.classList.add("online");
+}).catch(() => {
+  document.getElementById("system-status").textContent = "Servidor indisponível";
+});
+sincronizarSidebar();

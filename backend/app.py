@@ -127,7 +127,10 @@ Sua função é explicar acontecimentos geopolíticos de forma didática.
 Considere informações recentes quando disponíveis.
 Quando não tiver certeza sobre um acontecimento atual, informe essa limitação e não invente dados.
 
-Responda sempre em português, de forma simples e objetiva, sem usar markdown.
+Responda exclusivamente em português do Brasil (pt-BR), de forma simples e objetiva, sem usar markdown.
+Mesmo que os dados do país, o histórico da conversa, a pergunta ou os resultados
+da busca estejam em inglês ou outro idioma, escreva toda a explicação em português.
+Traduza as informações das fontes; preserve apenas nomes próprios, siglas e URLs quando necessário.
 """.strip()
 
     historico_formatado = []
@@ -157,7 +160,7 @@ Responda sempre em português, de forma simples e objetiva, sem usar markdown.
             "role": "user",
             "parts": [
                 {
-                    "text": mensagem
+                    "text": f"{mensagem}\n\nResponda integralmente em português do Brasil (pt-BR)."
                 }
             ]
         }
@@ -285,7 +288,7 @@ def compare_ai():
             "error": "Faltam dados obrigatórios: code3_a ou code3_b."
         }, 400
 
-    chave_cache = "_".join(sorted([code3_a, code3_b]))
+    chave_cache = "pt-BR_v2_" + "_".join(sorted([code3_a, code3_b]))
 
     if chave_cache in CACHE_COMPARACOES:
         return {
@@ -329,8 +332,11 @@ Você é um analista de geopolítica. A data de hoje é {data_hoje}.
 Compare {nome_a} e {nome_b} em termos de contexto geopolítico atual,
 estabilidade e principais riscos de segurança. Use a busca do Google
 para trazer informações atualizadas quando necessário.
-Responda em português, de forma objetiva, sem markdown, em no máximo
-6 parágrafos curtos.
+Responda exclusivamente em português do Brasil (pt-BR), de forma objetiva,
+sem markdown, em no máximo 6 parágrafos curtos.
+Mesmo que os nomes, dados dos países ou resultados da busca estejam em inglês
+ou outro idioma, escreva toda a análise em português. Traduza as informações
+das fontes; preserve apenas nomes próprios, siglas e URLs quando necessário.
 """.strip()
 
     payload = json.dumps({
@@ -346,7 +352,7 @@ Responda em português, de forma objetiva, sem markdown, em no máximo
                 "role": "user",
                 "parts": [
                     {
-                        "text": f"Compare {nome_a} e {nome_b}."
+                        "text": f"Compare {nome_a} e {nome_b}. Responda integralmente em português do Brasil (pt-BR)."
                     }
                 ]
             }
