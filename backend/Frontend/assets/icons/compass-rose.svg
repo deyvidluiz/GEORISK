@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none">
+ <g stroke="#173f64" stroke-width="1.8"><circle cx="80" cy="80" r="68"/><circle cx="80" cy="80" r="48"/><path d="M80 12v136M12 80h136M32 32l96 96M128 32 32 128" opacity=".42"/></g>
+ <path d="m80 18 12 54-12 8-12-8L80 18Z" fill="#173f64"/><path d="m80 142 12-54-12-8-12 8 12 54Z" fill="#173f64" opacity=".42"/>
+ <path d="m18 80 54-12 8 12-8 12L18 80Zm124 0-54-12-8 12 8 12 54-12Z" fill="#173f64" opacity=".6"/>
+ <text x="80" y="29" text-anchor="middle" fill="#173f64" font-family="Arial" font-size="14" font-weight="700">N</text><text x="80" y="142" text-anchor="middle" fill="#173f64" font-family="Arial" font-size="11">S</text>
+</svg>

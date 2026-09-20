@@ -6,148 +6,255 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoRisk</title>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
+    <script src="theme.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <div class="app-shell">
+    <div class="app-shell app-top">
+        <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+            <div class="sidebar-sticky">
+            <a class="logo brand" href="#dashboard" aria-label="GeoRisk — início">
+                <img src="assets/img/logo.svg" alt="" width="38" height="46">
+                <span class="brand-name">GEO<em>RISK</em><small>INTELIGÊNCIA GEOGRÁFICA</small></span>
+            </a>
+            <nav class="side-nav">
+                <a href="#dashboard" class="active" aria-current="page"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m3 10 9-7 9 7v10H3zM9 20v-7h6v7"/></svg></span>Dashboard</a>
+                <a href="#mapa"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2zM9 3v16M15 5v16"/></svg></span>Mapa Global</a>
+                <a href="#painel"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"/><circle cx="12" cy="12" r="10"/></svg></span>Países</a>
+                <a href="#comparacao-secao"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 7h12l-3.5-3.5M17 17H5l3.5 3.5"/></svg></span>Comparar</a>
+                <a href="#noticias-secao"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 3h10l4 4v14H5zM14 3v5h5M9 12h6M9 16h6"/></svg></span>Notícias</a>
+                <a href="#comparacao-secao"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 21V11h3v10M10 21V6h3v15M16 21V3h3v18"/></svg></span>Relatórios</a>
+            </nav>
+            </div>
+            <div class="sidebar-footer sidebar-message sidebar-quote">
+                <p>Compreender<br>o mundo é o primeiro<br>passo para<br>transformá-lo.</p><i></i>
+            </div>
+        </aside>
+        <button class="sidebar-backdrop" aria-label="Fechar navegação" hidden></button>
+        <main id="dashboard" class="dashboard main">
+            <div class="hero-bg" aria-hidden="true">
+                <img class="hero-globe" src="assets/img/hero-globe.png" alt="">
+                <img class="hero-compass" src="assets/img/compass.svg" alt="">
+            </div>
         <header class="topbar">
-            <div class="brand">
-                <span class="eyebrow">Monitoramento internacional</span>
-                <h1>GeoRisk</h1>
-                <p>Explore conflitos armados por ano, pais e contexto geopolitico.</p>
-            </div>
-
-            <div class="top-actions" aria-label="Resumo do periodo">
-                <div class="metric">
-                    <span id="total-conflitos">0</span>
-                    <small>paises em alerta</small>
+            <button id="sidebar-toggle" class="icon-button icon-btn" aria-label="Alternar navegação" aria-controls="sidebar" aria-expanded="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            <label class="search-box" for="busca-pais"><span aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg></span><input id="busca-pais" list="paises-busca" type="search" placeholder="Buscar países ou códigos..." aria-label="Buscar país" autocomplete="off"></label><datalist id="paises-busca"></datalist>
+            <div class="notification-wrap" id="alertas">
+                <button id="notification-toggle" class="notification" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="notificacoes-painel" aria-label="Consultar alertas">
+                    <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+                    <span id="notification-badge" class="notification-badge" hidden>0</span>
+                </button>
+                <div id="notificacoes-painel" class="notification-painel" hidden role="dialog" aria-label="Alertas recentes">
+                    <div class="notification-painel-cabecalho">
+                        <h3>Alertas Recentes</h3>
+                        <span id="ano-atual">—</span>
+                    </div>
+                    <p class="data-note">Registros anuais · sem ordem de atualização</p>
+                    <div id="alert-list" aria-live="polite"><p class="empty-state">Carregando alertas…</p></div>
                 </div>
-                <div class="metric">
-                    <span id="ano-atual">2025</span>
-                    <small>ano analisado</small>
-                </div>
             </div>
+            <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Tema escuro" aria-pressed="false">
+                <svg class="ui-icon theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 15.5A9 9 0 0 1 8.5 4 9 9 0 1 0 20 15.5Z"/></svg>
+                <svg class="ui-icon theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+                <span id="theme-label">Tema escuro</span>
+            </button>
         </header>
 
-        <main class="workspace">
-            <section class="map-area" aria-label="Mapa interativo de conflitos">
-                <div class="map-toolbar">
-                    <label class="search-box" for="busca-pais">
-                        <span>Buscar</span>
-                        <input id="busca-pais" type="search" placeholder="Digite um pais ou codigo" autocomplete="off">
-                    </label>
-
-                    <label class="year-control" for="seletor-ano">
-                        <span>Ano</span>
-                        <select id="seletor-ano"></select>
-                    </label>
+            <section class="page-heading hero">
+                <div class="global-hero-content">
+                    <span class="eyebrow">DADOS · ANÁLISES · PERSPECTIVAS</span>
+                    <h1 class="hero-title">Panorama <b class="accent">Global</b></h1>
+                    <p class="lead-txt">Explore o mundo em mapas interativos, indicadores e análises geopolíticas.</p>
                 </div>
-
-                <div id="map"></div>
-
-                <div class="legend" aria-label="Legenda do mapa">
-                    <span><i class="legend-dot danger"></i>Conflito armado</span>
-                    <span><i class="legend-dot neutral"></i>Sem alerta no ano</span>
+                <div class="system-info"><time id="data-hoje"></time><span id="system-status" role="status">Verificando conexão…</span></div>
+            </section>
+            <section class="summary-grid" aria-label="Indicadores gerais">
+                <div class="summary-card card-x kpi">
+                    <span class="summary-icon kpi-ico blue" aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"/></svg></span>
+                    <div class="kpi-body"><strong id="resumo-paises">-</strong><h2>Países monitorados</h2><small>Base de dados completa</small></div>
+                </div>
+                <div class="summary-card card-x kpi">
+                    <span class="summary-icon kpi-ico red" aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></span>
+                    <div class="kpi-body"><strong id="resumo-conflitos">-</strong><h2>Conflitos ativos</h2><small id="resumo-conflitos-ano">No ano selecionado</small></div>
+                </div>
+                <div class="summary-card card-x kpi">
+                    <span class="summary-icon kpi-ico orange" aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 6v12M15 9.3c0-1.4-1.4-2.3-3-2.3s-3 .9-3 2.3 1.4 1.9 3 2.3 3 .9 3 2.3-1.4 2.4-3 2.4-3-1-3-2.4"/></svg></span>
+                    <div class="kpi-body"><strong id="resumo-moedas">-</strong><h2>Moedas analisadas</h2><small>Em circulação nos países monitorados</small></div>
+                </div>
+                <div class="summary-card card-x kpi">
+                    <span class="summary-icon kpi-ico green" aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                    <div class="kpi-body"><strong id="resumo-populacao">-</strong><h2>População global</h2><small>Soma dos países monitorados</small></div>
                 </div>
             </section>
-
-            <aside id="painel" aria-label="Detalhes do pais selecionado">
-                <div class="panel-header">
-                    <span class="panel-kicker">Analise do pais</span>
-                    <div class="panel-title-row">
-                        <img id="bandeira-pais" class="bandeira" alt="" hidden>
-                        <h2 id="nome-pais">Selecione um pais</h2>
+            <div class="workspace">
+                <section class="map-area card-x map-card" id="mapa" aria-label="Mapa interativo de conflitos">
+                    <div class="map-toolbar"><h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2zM9 3v16M15 5v16"/></svg> &nbsp; Mapa Global</h2><label class="year-control" for="seletor-ano">Ano <select id="seletor-ano"></select></label><button id="map-expand" class="icon-button icon-btn" aria-label="Ampliar mapa" aria-pressed="false"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5"/></svg></button></div>
+                    <div class="map-wrapper">
+                        <div id="map"></div>
+                    </div>
+                    <div id="map-legend" class="legend" aria-label="Legenda do mapa"><button id="map-expand-link" class="map-expand-link" type="button">Ver mapa em tela cheia →</button></div>
+                </section>
+                <aside id="painel" class="card card-x painel-resumo country-card" aria-label="Detalhes do país selecionado">
+                    <h2 class="country-heading">Análise do País</h2>
+                    <div class="panel-header">
+                        <div class="panel-title-row">
+                            <img id="bandeira-pais" class="bandeira" alt="" hidden>
+                            <select id="selecao-pais" aria-label="Selecionar país para análise"><option value="">Selecione um país</option></select><h2 id="nome-pais" class="sr-only">Selecione um país</h2>
+                        </div>
+                        <span id="risco-badge" class="risco-badge country-status" role="status" aria-live="polite">-</span>
                     </div>
                     <p id="painel-subtitulo">Clique no mapa ou use a busca para abrir os dados.</p>
-                </div>
+                    <h3 class="mini-title">Resumo</h3>
+                    <p id="pais-resumo" class="pais-resumo" hidden></p>
 
-                <div id="alerta-conflito" role="status">
-                    <strong id="alerta-tipo"></strong>
-                    <p id="alerta-resumo"></p>
-                </div>
+                    <div id="alerta-conflito" role="status">
+                        <strong id="alerta-tipo"></strong>
+                        <p id="alerta-resumo"></p>
+                    </div>
 
-                <dl class="country-facts">
-                    <div>
-                        <dt>Capital</dt>
-                        <dd id="capital">-</dd>
-                    </div>
-                    <div>
-                        <dt>Regiao</dt>
-                        <dd id="regiao">-</dd>
-                    </div>
-                    <div>
-                        <dt>Populacao</dt>
-                        <dd id="populacao">-</dd>
-                    </div>
-                    <div>
-                        <dt>Moeda</dt>
-                        <dd id="moeda">-</dd>
-                    </div>
-                    <div>
-                        <dt>Codigo</dt>
-                        <dd id="codigo">-</dd>
-                    </div>
-                </dl>
-
-                <section id="chat-ia">
-                    <div class="chat-heading">
+                    <dl class="country-facts">
+                        <div><dt>Continente</dt><dd id="continente">-</dd></div>
                         <div>
-                            <span class="panel-kicker">IA geopolitica</span>
-                            <h3>Converse sobre o pais</h3>
+                            <dt>Capital</dt>
+                            <dd id="capital">-</dd>
                         </div>
+                        <div>
+                            <dt>Região</dt>
+                            <dd id="regiao">-</dd>
+                        </div>
+                        <div>
+                            <dt>População</dt>
+                            <dd id="populacao">-</dd>
+                        </div>
+                        <div>
+                            <dt>Moeda</dt>
+                            <dd id="moeda">-</dd>
+                        </div>
+                        <div>
+                            <dt>Código</dt>
+                            <dd id="codigo">-</dd>
+                        </div>
+                        <div>
+                            <dt>PIB (nominal)</dt>
+                            <dd id="pib">-</dd>
+                        </div>
+                        <div hidden>
+                            <dt>Índice de risco</dt>
+                            <dd id="risco">-</dd>
+                        </div>
+                    </dl>
+
+                    <button id="ver-perfil" class="ver-perfil-btn" type="button">Conversar com a IA sobre este país →</button>
+                </aside>
+            </div>
+
+            <div class="workspace-secundaria">
+                <section id="indicadores" class="card card-x indicadores ind-card" aria-label="Indicadores principais">
+                    <div class="section-heading">
+                        <h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg> &nbsp; Indicadores Principais</h2>
+                    </div>
+                    <div class="indicador-tabs" role="tablist" aria-label="Categoria de indicador">
+                        <button class="indicador-tab active" type="button" data-indicador="economia" role="tab" aria-selected="true">Economia</button>
+                        <button class="indicador-tab" type="button" data-indicador="populacao" role="tab" aria-selected="false">População</button>
+                        <button class="indicador-tab" type="button" data-indicador="moedas" role="tab" aria-selected="false">Recursos</button>
+                        <button class="indicador-tab" type="button" data-indicador="seguranca" role="tab" aria-selected="false">Segurança</button>
+                    </div>
+                    <div class="indicador-chart-head">
+                        <div>
+                            <span id="indicador-titulo">Conflitos ativos por ano</span>
+                            <strong id="indicador-valor">-<span id="indicador-unidade" class="indicador-unidade"></span></strong>
+                        </div>
+                        <span id="indicador-variacao" class="indicador-variacao">-</span>
+                    </div>
+                    <div class="indicador-grafico-wrap">
+                        <svg id="indicador-grafico" class="indicador-grafico" viewBox="0 0 600 240" preserveAspectRatio="none" role="img" aria-label="Gráfico do indicador selecionado"></svg>
+                        <div id="indicador-tooltip" class="indicador-tooltip" hidden></div>
+                    </div>
+                    <div id="indicador-barras" class="indicador-barras" hidden></div>
+                    <div class="indicador-stats" id="indicador-stats"></div>
+                </section>
+
+                <section id="chat-ia" class="card card-x chat-card ai-card" aria-label="Converse com a IA sobre o país">
+                    <div class="section-heading">
+                        <h2><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4Z"/><path d="M6 12v1a6 6 0 0 0 12 0v-1M12 19v3M9 22h6"/></svg> &nbsp; Converse com a IA sobre o país</h2>
+                    </div>
+                    <p class="data-note">Obtenha análises, comparações e cenários estratégicos em tempo real.</p>
+
+                    <div class="ai-body"><div class="ai-chat">
+                    <div class="prompt-list" aria-label="Perguntas rápidas">
+                        <button class="prompt-item" type="button" data-prompt="Resuma o contexto de seguranca deste pais.">Qual é o contexto de segurança deste país?</button>
+                        <button class="prompt-item" type="button" data-prompt="Quais fatores historicos ajudam a explicar os conflitos?">Quais fatores históricos explicam os conflitos?</button>
+                        <button class="prompt-item" type="button" data-prompt="Quais indicadores devo acompanhar neste pais?">Quais indicadores devo acompanhar neste país?</button>
                     </div>
 
-                    <div class="prompt-row" aria-label="Perguntas rapidas">
-                        <button class="prompt-btn" type="button" data-prompt="Resuma o contexto de seguranca deste pais.">Contexto</button>
-                        <button class="prompt-btn" type="button" data-prompt="Quais fatores historicos ajudam a explicar os conflitos?">Historico</button>
-                        <button class="prompt-btn" type="button" data-prompt="Quais indicadores devo acompanhar neste pais?">Indicadores</button>
-                    </div>
-
-                    <div id="chat-mensagens"></div>
+                    <div id="chat-mensagens" aria-live="polite"></div>
+                    </div><div class="ai-side" aria-hidden="true"><img src="assets/img/globe-ai.png" alt=""><p>Análises mais<br>profundas para<br>decisões mais seguras.</p><i></i></div></div>
 
                     <form id="chat-form">
-                        <input id="chat-input" type="text" placeholder="Pergunte sobre o pais selecionado" autocomplete="off">
+                        <input id="chat-input" aria-label="Pergunta sobre o país" type="text" placeholder="Digite sua pergunta sobre o país..." autocomplete="off">
                         <button id="chat-enviar" type="submit">Enviar</button>
                     </form>
 
                     <p id="chat-erro"></p>
                 </section>
-            </aside>
-        </main>
-    </main>
+            </div>
 
-    <section id="comparacao-secao" aria-label="Comparacao entre paises">
+    </main>
+    </div>
+    <div class="app-bottom">
+    <section class="card-x compare-card" id="comparacao-secao" aria-label="Comparação entre países">
         <div class="comparacao-cabecalho">
             <div>
-                <span class="panel-kicker">Modo comparacao</span>
-                <h2>Compare dois paises</h2>
-                <p id="comparacao-instrucao">Ative o modo comparacao e clique em dois paises no mapa.</p>
+                <span class="panel-kicker">Modo comparação</span>
+                <h2>Compare dois países</h2>
+                <p id="comparacao-instrucao">Escolha dois países nos seletores ou ative a comparação pelo mapa.</p>
             </div>
-            <button id="comparacao-toggle" class="comparacao-btn" type="button">Ativar modo comparacao</button>
+            <button id="comparacao-toggle" class="comparacao-btn" type="button">Ativar modo comparação</button>
         </div>
 
-        <div id="comparacao-corpo" class="comparacao-corpo" hidden>
+        <div id="comparacao-corpo" class="comparacao-corpo">
             <div class="comparacao-coluna" id="comparacao-a">
-                <span class="comparacao-rotulo">Pais A</span>
-                <h3 id="comparacao-a-nome">-</h3>
+                <span class="comparacao-rotulo">País A</span>
+                <select id="comparacao-a-select" aria-label="Selecionar país A"><option value="">Selecione um país</option></select><h3 id="comparacao-a-nome">-</h3>
                 <dl class="country-facts">
                     <div><dt>Capital</dt><dd id="comparacao-a-capital">-</dd></div>
-                    <div><dt>Regiao</dt><dd id="comparacao-a-regiao">-</dd></div>
-                    <div><dt>Populacao</dt><dd id="comparacao-a-populacao">-</dd></div>
+                    <div><dt>Região</dt><dd id="comparacao-a-regiao">-</dd></div>
+                    <div><dt>População</dt><dd id="comparacao-a-populacao">-</dd></div>
                     <div><dt>Moeda</dt><dd id="comparacao-a-moeda">-</dd></div>
                     <div><dt>Conflito</dt><dd id="comparacao-a-conflito">-</dd></div>
                 </dl>
             </div>
 
+            <div class="comparacao-metricas" id="comparacao-metricas">
+                <button id="comparacao-swap" class="icon-button icon-btn" type="button" aria-label="Inverter países">
+                    <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 7h12l-3.5-3.5M17 17H5l3.5 3.5"/></svg>
+                </button>
+                <div class="comparacao-metrica">
+                    <span class="comparacao-metrica-titulo">População</span>
+                    <div class="comparacao-metrica-valores"><span id="valor-populacao-a">-</span><span id="valor-populacao-b">-</span></div>
+                    <div class="comparacao-barra"><div class="barra-a" id="barra-populacao-a"></div><div class="barra-b" id="barra-populacao-b"></div></div>
+                </div>
+                <div class="comparacao-metrica">
+                    <span class="comparacao-metrica-titulo">PIB (US$)</span>
+                    <div class="comparacao-metrica-valores"><span id="valor-pib-a">-</span><span id="valor-pib-b">-</span></div>
+                    <div class="comparacao-barra"><div class="barra-a" id="barra-pib-a"></div><div class="barra-b" id="barra-pib-b"></div></div>
+                </div>
+                <div class="comparacao-metrica">
+                    <span class="comparacao-metrica-titulo">Área</span>
+                    <div class="comparacao-metrica-valores"><span id="valor-area-a">-</span><span id="valor-area-b">-</span></div>
+                    <div class="comparacao-barra"><div class="barra-a" id="barra-area-a"></div><div class="barra-b" id="barra-area-b"></div></div>
+                </div>
+            </div>
+
             <div class="comparacao-coluna" id="comparacao-b">
-                <span class="comparacao-rotulo">Pais B</span>
-                <h3 id="comparacao-b-nome">-</h3>
+                <span class="comparacao-rotulo">País B</span>
+                <select id="comparacao-b-select" aria-label="Selecionar país B"><option value="">Selecione um país</option></select><h3 id="comparacao-b-nome">-</h3>
                 <dl class="country-facts">
                     <div><dt>Capital</dt><dd id="comparacao-b-capital">-</dd></div>
-                    <div><dt>Regiao</dt><dd id="comparacao-b-regiao">-</dd></div>
-                    <div><dt>Populacao</dt><dd id="comparacao-b-populacao">-</dd></div>
+                    <div><dt>Região</dt><dd id="comparacao-b-regiao">-</dd></div>
+                    <div><dt>População</dt><dd id="comparacao-b-populacao">-</dd></div>
                     <div><dt>Moeda</dt><dd id="comparacao-b-moeda">-</dd></div>
                     <div><dt>Conflito</dt><dd id="comparacao-b-conflito">-</dd></div>
                 </dl>
@@ -159,11 +266,15 @@
             <div id="comparacao-ia-resultado" class="comparacao-ia-resultado"></div>
         </div>
     </section>
-    
-        <section id="noticias-secao">
+
+        <section class="card-x news-card" id="noticias-secao">
             <div class="noticias-cabecalho">
-                <span class="panel-kicker">Radar global</span>
-                <h2>Últimas notícias</h2>
+                <div>
+                    <span class="panel-kicker">Radar global</span>
+                    <h2>Últimas notícias</h2>
+                    <p class="data-note">Acompanhe os principais acontecimentos do cenário global.</p>
+                </div>
+                <a id="ver-todas-noticias" class="ver-perfil-btn" target="_blank" rel="noopener noreferrer" href="https://news.google.com/search?q=geopolitics%20OR%20%22international%20conflict%22%20OR%20%22armed%20conflict%22%20OR%20%22foreign%20policy%22&hl=pt-BR">Ver todas as notícias →</a>
             </div>
             <div class="carrossel-wrapper">
                 <button id="carrossel-anterior" class="carrossel-seta" aria-label="Anterior">‹</button>
@@ -173,38 +284,11 @@
                 <button id="carrossel-proximo" class="carrossel-seta" aria-label="Próxima">›</button>
             </div>
         </section>
+        <footer class="page-footer"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12 3 8 3v6c0 4-8 9-8 9s-8-5-8-9V6zM8 12l3 3 5-6"/></svg> &nbsp; Dados que ajudam a compreender o mundo</footer>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        const map = L.map("map", {
-            maxBounds: [[-90, -180], [90, 180]],
-            maxBoundsViscosity: 1.0,
-            worldCopyJump: false,
-            zoomControl: false
-        });
-
-        L.control.zoom({ position: "bottomleft" }).addTo(map);
-
-        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 19,
-            noWrap: true,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-
-        map.fitWorld();
-
-        window.addEventListener("load", () => {
-            setTimeout(() => {
-                map.invalidateSize();
-                map.fitWorld();
-            }, 250);
-        });
-
-        window.addEventListener("resize", () => {
-            map.invalidateSize();
-        });
-    </script>
+    <script src="assets/vendor/leaflet/leaflet.js"></script>
+    <script src="map.js"></script>
     <script src="script.js"></script>
 </body>
 

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+ <g stroke="#367DA8" stroke-width="1"><circle cx="100" cy="100" r="72" opacity=".32"/><circle cx="100" cy="100" r="52" opacity=".25"/></g>
+ <path d="M100 18 111 89 100 79 89 89Z" fill="#367DA8"/><path d="m100 182-11-71 11 10 11-10Z" fill="#367DA8" opacity=".55"/><path d="m18 100 71-11-10 11 10 11Z" fill="#367DA8" opacity=".65"/><path d="m182 100-71 11 10-11-10-11Z" fill="#367DA8" opacity=".65"/><circle cx="100" cy="100" r="5" fill="#367DA8"/>
+ <g fill="#315F7E" font-family="system-ui, sans-serif" font-size="12" text-anchor="middle"><text x="100" y="12">N</text><text x="100" y="198">S</text><text x="7" y="104">O</text><text x="193" y="104">L</text></g>
+</svg>

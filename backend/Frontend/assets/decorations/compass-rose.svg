@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
+ <g stroke="#1d5478" stroke-width="1.5"><circle cx="90" cy="90" r="76"/><circle cx="90" cy="90" r="55"/><path d="M90 14v152M14 90h152M36 36l108 108M144 36 36 144" opacity=".42"/></g>
+ <path d="m90 19 14 61-14 10-14-10L90 19Z" fill="#1d5478"/><path d="m90 161 14-61-14-10-14 10 14 61Z" fill="#1d5478" opacity=".42"/><path d="m19 90 61-14 10 14-10 14L19 90Zm142 0-61-14-10 14 10 14 61-14Z" fill="#1d5478" opacity=".6"/>
+ <g fill="#1d5478" font-family="Arial,sans-serif" font-size="13" font-weight="700" text-anchor="middle"><text x="90" y="31">N</text><text x="90" y="158">S</text><text x="29" y="94">O</text><text x="151" y="94">L</text></g>
+</svg>
